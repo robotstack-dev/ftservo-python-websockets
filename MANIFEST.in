@@ -1,0 +1,2 @@
+include README.md
+recursive-include scservo_sdk *.py 
