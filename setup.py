@@ -1,15 +1,15 @@
 from setuptools import setup
 
 setup(
-    name='ftservo_python_websockets',
-    version='0.0.2',
+    name='ftservo-python-websockets',
+    version='0.0.3',
     packages=['scservo_sdk'],
     description='Python SDK for FT Servo with WebSocket support',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    author='Nicholas Stedman',
-    author_email='nickstedman@gmail.com',
-    url='https://github.com/nsted/FTServo_Python_Websockets',
+    author='Robotstack',
+    author_email='nick@robotstack.com',
+    url='https://github.com/robotstack-dev/ftservo-python-websockets',
     install_requires=['websockets>=9.0'],
     python_requires='>=3.7',
     license='Apache-2.0',
