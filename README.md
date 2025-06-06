@@ -6,7 +6,7 @@ This is a fork of the [official feetech repository](https://github.com/ftservo/F
 
 This fork adds support for using a WebSocket client as a port in place of a serial port. This makes it possible to wirelessly control your robot!
 
-It requires the servos to be connected over half-duplex serial to a WiFi-enabled microcontroller (e.g. ESP32) that uses a WebSocket server to relay the comms to and from connected motors. The [Robotstack smart-servo-addon-board](https://github.com/robotstack-dev/smart-servo-addon-board) is a ready-to-use solution that provides this functionality.
+It requires the servos to be connected over half-duplex serial to a WiFi-enabled microcontroller (e.g. ESP32) that uses a WebSocket server to relay the comms to and from connected motors. The **[RobotStack Smart Servo Add-On Board](https://www.tindie.com/products/robotstack/smart-servo-addon-board/)** is a ready-to-use solution that provides this functionality.
 
 ## Structure
 
