@@ -23,7 +23,7 @@ from scservo_sdk import *                 # Uses SCServo SDK library
 # Set the port path
 # Get methods and members of PortHandlerLinux or PortHandlerWindows
 # portHandler = PortHandler('/dev/ttyUSB0')# ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
-portHandler = PortHandler('ws://192.168.2.61:80')
+portHandler = PortHandler('ws://192.168.2.61:8080')
 
 # Initialize PacketHandler instance
 # Get methods and members of Protocol

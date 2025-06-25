@@ -38,26 +38,13 @@ Tested with:
 - [smart-servo-bridge firmware](https://github.com/robotstack-dev/smart-servo-bridge)
 - Feetech HLS3930 smart servos
 
-### Method 1. Clone repository
+### Installation
 
 ```bash
 $ cd /usr/src/
 $ sudo git clone https://github.com/robotstack-dev/ftservo-python-websockets.git
 $ sudo chown -R pi ftservo-python-websockets
 $ cd ftservo-python-websockets/sms_sts
-$ python3 ping.py
-Succeeded to open the port
-Succeeded to change the baudrate
-[ID:001] ping Succeeded. SCServo model number : 1540
-```
-
-### Method 2. Install via pip
-
-```bash
-Copy the sample file to any location convenient for you. In the example I use '/home/pi/FeetechTestFiles'
-
-$ pip install ftservo-python-websockets
-$ cd /home/pi/FeetechTestFiles/sms_sts
 $ python3 ping.py
 Succeeded to open the port
 Succeeded to change the baudrate
