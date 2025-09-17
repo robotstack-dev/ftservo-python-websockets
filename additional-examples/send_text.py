@@ -14,7 +14,7 @@ from scservo_sdk import *  # Uses SCServo SDK library
 # Default setting
 BAUDRATE = 1000000  # Default baudrate of SCServo
 # DEVICENAME = '/dev/cu.usbmodem1201'
-DEVICENAME = 'ws://192.168.2.61:8080'
+DEVICENAME = 'ws://192.168.2.68:8080'
 
 POLL_SECONDS = 5  # How long to poll for a response after sending
 POLL_INTERVAL = 0.1  # Polling interval in seconds
@@ -46,11 +46,11 @@ def poll_for_response(portHandler, seconds=POLL_SECONDS, interval=POLL_INTERVAL)
     end_time = time.time() + seconds
     found = False
     while time.time() < end_time:
-        if portHandler.getBytesAvailable() > 0:
-            data = portHandler.readPort(portHandler.getBytesAvailable())
-            if data:
-                print(f"Received response: {data}")
-                found = True
+        response = portHandler.websocket.recv()
+        if response:
+            print(f"Received response: {response}")
+            found = True
+            break
         time.sleep(interval)
     if not found:
         print("No response received.")
@@ -84,7 +84,7 @@ def main():
 
     # Try to send a text message
     try:
-        message = "ping"
+        message = "1:ping"
         send_text_message(portHandler, message)
         print("Message sent successfully!")
         poll_for_response(portHandler)

@@ -21,7 +21,9 @@ from scservo_sdk import *                   # Uses SCServo SDK library
 # Set the port path
 # Get methods and members of PortHandlerLinux or PortHandlerWindows
 # portHandler = PortHandler('/dev/ttyUSB0') #ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
-portHandler = PortHandler('ws://192.168.2.61:80')
+# portHandler = PortHandler('ws://192.168.2.61:80')
+portHandler = PortHandler('/dev/cu.usbserial-1120')
+SERVO_ID = 4
 
 # Initialize PacketHandler instance
 # Get methods and members of Protocol
@@ -44,11 +46,11 @@ else:
 
 # Try to ping the ID:1 FTServo
 # Get SCServo model number
-scs_model_number, scs_comm_result, scs_error = packetHandler.ping(1)
+scs_model_number, scs_comm_result, scs_error = packetHandler.ping(SERVO_ID)
 if scs_comm_result != COMM_SUCCESS:
     print("%s" % packetHandler.getTxRxResult(scs_comm_result))
 else:
-    print("[ID:%03d] ping Succeeded. SCServo model number : %d" % (1, scs_model_number))
+    print("[ID:%03d] ping Succeeded. SCServo model number : %d" % (SERVO_ID, scs_model_number))
 if scs_error != 0:
     print("%s" % packetHandler.getRxPacketError(scs_error))
 

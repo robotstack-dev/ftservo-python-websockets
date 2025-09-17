@@ -19,7 +19,7 @@ from scservo_sdk import *                   # Uses FTServo SDK library
 
 # Use the actual port assigned to the smart servo controller.
 # ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
-# DEVICENAME                  = '/dev/tty.usbmodem12301'
+# DEVICENAME                  = '/dev/tty.usbmodem11201'
 # DEVICENAME                  = '/dev/cu.usbserial-1120'
 DEVICENAME                  = 'ws://192.168.2.61:80'
 

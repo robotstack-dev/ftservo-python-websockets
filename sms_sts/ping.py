@@ -19,8 +19,10 @@ from scservo_sdk import *                   # Uses FTServo SDK library
 
 # Use the actual port assigned to the smart servo controller.
 # ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
-# DEVICENAME                  = '/dev/cu.usbmodem1201'
-DEVICENAME                  = 'ws://192.168.2.61:8080'
+# DEVICENAME                  = '/dev/cu.usbmodem11201'
+# DEVICENAME                  = '/dev/cu.usbserial-1120'
+DEVICENAME                  = 'ws://192.168.2.68:8080'
+SERVO_ID                  = 2
 
 # Initialize PortHandler instance
 portHandler = PortHandler(DEVICENAME) 
@@ -44,11 +46,11 @@ else:
 
 # Try to ping the ID:1 FTServo
 # Get SCServo model number
-scs_model_number, scs_comm_result, scs_error = packetHandler.ping(1)
+scs_model_number, scs_comm_result, scs_error = packetHandler.ping(SERVO_ID)
 if scs_comm_result != COMM_SUCCESS:
     print("%s" % packetHandler.getTxRxResult(scs_comm_result))
 else:
-    print("[ID:%03d] ping Succeeded. SCServo model number : %d" % (1, scs_model_number))
+    print("[ID:%03d] ping Succeeded. SCServo model number : %d" % (SERVO_ID, scs_model_number))
 if scs_error != 0:
     print("%s" % packetHandler.getRxPacketError(scs_error))
 

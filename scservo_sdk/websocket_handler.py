@@ -90,14 +90,17 @@ class WebSocketHandler(object):
                 except websocket.WebSocketConnectionClosedException:
                     print("WebSocket connection closed")
                     self.is_open = False
-                    return None
+                    return b""  # Return empty bytes instead of None
+                except websocket.WebSocketTimeoutException:
+                    print("WebSocket receive timeout")
+                    return b""  # Return empty bytes instead of None
                 except Exception as e:
                     print(f"WebSocket receive error: {e}")
-                    return None
-            return None
+                    return b""  # Return empty bytes instead of None
+            return b""  # Return empty bytes instead of None
         except Exception as e:
             print(f"Read error: {e}")
-            return None
+            return b""  # Return empty bytes instead of None
 
     def writePort(self, packet):
         try:
@@ -150,29 +153,53 @@ class WebSocketHandler(object):
             self.packet_start_time = self.getCurrentTime()
         return time_since
 
-    def setupPort(self):
+    def setupPort(self, max_retries=3, retry_delay=2):
         if self.is_open:
             self.closePort()
 
-        try:
-            # Add connection timeout and other websocket options
-            self.websocket = websocket.create_connection(
-                self.websocket_url,
-                timeout=5,  # 5 second timeout
-                enable_multithread=True,
-                skip_utf8_validation=True  # Performance optimization for binary data
-            )
-            self.is_open = True
-            self.tx_time_per_byte = (1000.0 / self.baudrate) * 10.0
-            return True
-        except websocket.WebSocketTimeoutException:
-            print("Connection timeout")
-            self.is_open = False
-            return False
-        except Exception as e:
-            print(f"Failed to connect to WebSocket: {e}")
-            self.is_open = False
-            return False
+        for attempt in range(max_retries):
+            try:
+                print(f"Attempting to connect to WebSocket: {self.websocket_url} (attempt {attempt + 1}/{max_retries})")
+                
+                # Add connection timeout and other websocket options
+                self.websocket = websocket.create_connection(
+                    self.websocket_url,
+                    timeout=10,  # Increased to 10 second timeout
+                    enable_multithread=True,
+                    skip_utf8_validation=True  # Performance optimization for binary data
+                )
+                self.is_open = True
+                self.tx_time_per_byte = (1000.0 / self.baudrate) * 10.0
+                print("WebSocket connection established successfully")
+                return True
+                
+            except websocket.WebSocketTimeoutException:
+                print(f"Connection timeout (attempt {attempt + 1}/{max_retries})")
+                if attempt < max_retries - 1:
+                    print(f"Retrying in {retry_delay} seconds...")
+                    time.sleep(retry_delay)
+                else:
+                    print("All connection attempts failed due to timeout")
+                    self.is_open = False
+                    return False
+                    
+            except websocket.WebSocketAddressException as e:
+                print(f"WebSocket address error: {e}")
+                print("Please check if the WebSocket server is running and the URL is correct")
+                self.is_open = False
+                return False
+                
+            except Exception as e:
+                print(f"Failed to connect to WebSocket (attempt {attempt + 1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    print(f"Retrying in {retry_delay} seconds...")
+                    time.sleep(retry_delay)
+                else:
+                    print("All connection attempts failed")
+                    self.is_open = False
+                    return False
+        
+        return False
 
     def getCFlagBaud(self, baudrate):
         # Keep baudrate method for compatibility, though not needed in WebSockets
