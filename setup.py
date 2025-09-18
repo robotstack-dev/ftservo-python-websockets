@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='ftservo-python-websockets',
-    version='0.0.3',
+    version='0.0.4',
     packages=['scservo_sdk'],
     description='Python SDK for FT Servo with WebSocket support',
     long_description=open('README.md').read(),
