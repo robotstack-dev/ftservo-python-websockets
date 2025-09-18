@@ -1,7 +1,12 @@
 import time
 import sys
 import websocket
+import logging
 # from .port_handler import PortHandler
+
+# Configure logging - disabled by default
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.CRITICAL)  # Only show critical errors by default
 
 LATENCY_TIMER = 16
 # default to native baudrate to prevent errors at init
@@ -19,6 +24,21 @@ class WebSocketHandler(object):
         self.websocket_url = websocket_url
         self.websocket = None
         self.buffer = b""  # Buffer to store excess data from previous reads
+    
+    @classmethod
+    def enable_debug_logging(cls, level=logging.DEBUG):
+        """Enable debug logging for WebSocket operations"""
+        logger.setLevel(level)
+        if not logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+    
+    @classmethod
+    def disable_logging(cls):
+        """Disable all logging except critical errors"""
+        logger.setLevel(logging.CRITICAL)
 
     def openPort(self):
         # Opens a connection to the WebSocket server
@@ -30,7 +50,7 @@ class WebSocketHandler(object):
             try:
                 self.websocket.close()
             except Exception as e:
-                print(f"Error closing WebSocket: {e}")
+                logger.error(f"Error closing WebSocket: {e}")
             finally:
                 self.websocket = None
                 self.is_open = False
@@ -88,25 +108,25 @@ class WebSocketHandler(object):
                         data, self.buffer = self.buffer, b""
                         return data
                 except websocket.WebSocketConnectionClosedException:
-                    print("WebSocket connection closed")
+                    logger.warning("WebSocket connection closed")
                     self.is_open = False
                     return b""  # Return empty bytes instead of None
                 except websocket.WebSocketTimeoutException:
-                    print("WebSocket receive timeout")
+                    logger.debug("WebSocket receive timeout")
                     return b""  # Return empty bytes instead of None
                 except Exception as e:
-                    print(f"WebSocket receive error: {e}")
+                    logger.error(f"WebSocket receive error: {e}")
                     return b""  # Return empty bytes instead of None
             return b""  # Return empty bytes instead of None
         except Exception as e:
-            print(f"Read error: {e}")
+            logger.error(f"Read error: {e}")
             return b""  # Return empty bytes instead of None
 
     def writePort(self, packet):
         try:
             # Check if WebSocket is connected using the 'sock' attribute
             if not self.websocket or not self.websocket.sock:
-                print("Write error: WebSocket is not connected.")
+                logger.error("Write error: WebSocket is not connected.")
                 return 0
 
             # Convert list to bytes if packet is a list of integers
@@ -121,13 +141,13 @@ class WebSocketHandler(object):
             elif isinstance(packet, str):
                 self.websocket.send(packet)  # Send as text
             else:
-                print(f"Write error: Invalid packet type {type(packet)}")
+                logger.error(f"Write error: Invalid packet type {type(packet)}")
                 return 0
 
             # print(f"Packet sent: {packet}")
             return len(packet)
         except Exception as e:
-            print(f"Write error: {e}")
+            logger.error(f"Write error: {e}")
             return 0
     
     def setPacketTimeout(self, packet_length):
@@ -159,7 +179,7 @@ class WebSocketHandler(object):
 
         for attempt in range(max_retries):
             try:
-                print(f"Attempting to connect to WebSocket: {self.websocket_url} (attempt {attempt + 1}/{max_retries})")
+                logger.info(f"Attempting to connect to WebSocket: {self.websocket_url} (attempt {attempt + 1}/{max_retries})")
                 
                 # Add connection timeout and other websocket options
                 self.websocket = websocket.create_connection(
@@ -170,32 +190,32 @@ class WebSocketHandler(object):
                 )
                 self.is_open = True
                 self.tx_time_per_byte = (1000.0 / self.baudrate) * 10.0
-                print("WebSocket connection established successfully")
+                logger.info("WebSocket connection established successfully")
                 return True
                 
             except websocket.WebSocketTimeoutException:
-                print(f"Connection timeout (attempt {attempt + 1}/{max_retries})")
+                logger.warning(f"Connection timeout (attempt {attempt + 1}/{max_retries})")
                 if attempt < max_retries - 1:
-                    print(f"Retrying in {retry_delay} seconds...")
+                    logger.info(f"Retrying in {retry_delay} seconds...")
                     time.sleep(retry_delay)
                 else:
-                    print("All connection attempts failed due to timeout")
+                    logger.error("All connection attempts failed due to timeout")
                     self.is_open = False
                     return False
                     
             except websocket.WebSocketAddressException as e:
-                print(f"WebSocket address error: {e}")
-                print("Please check if the WebSocket server is running and the URL is correct")
+                logger.error(f"WebSocket address error: {e}")
+                logger.error("Please check if the WebSocket server is running and the URL is correct")
                 self.is_open = False
                 return False
                 
             except Exception as e:
-                print(f"Failed to connect to WebSocket (attempt {attempt + 1}/{max_retries}): {e}")
+                logger.error(f"Failed to connect to WebSocket (attempt {attempt + 1}/{max_retries}): {e}")
                 if attempt < max_retries - 1:
-                    print(f"Retrying in {retry_delay} seconds...")
+                    logger.info(f"Retrying in {retry_delay} seconds...")
                     time.sleep(retry_delay)
                 else:
-                    print("All connection attempts failed")
+                    logger.error("All connection attempts failed")
                     self.is_open = False
                     return False
         
@@ -214,9 +234,9 @@ class WebSocketHandler(object):
         
     # use for debugging packets...don't use by default
     def hexdump(self, src, length):
-        print("[HEXDUMP] ", len(src), " bytes:")
-        print("bytes expected: ", length, ", received: ", len(src))
+        logger.debug(f"[HEXDUMP] {len(src)} bytes:")
+        logger.debug(f"bytes expected: {length}, received: {len(src)}")
         for i in range(len(src)):
-            print(hex(src[i]), end=" ")
-        print("\n")
+            logger.debug(hex(src[i]), extra={"end": " "})
+        logger.debug("")
     
